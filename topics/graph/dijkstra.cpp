@@ -23,7 +23,7 @@ If we've come to a node and it has a lower recorded cost or we've taken too many
 
 Otherwise, for every outbound flight from node that is better, we'll add it to our priority queue of things to search.
 
-Time Complexity: O(E+nlogn), where E is the total number of flights.
+Time Complexity:  O(V + ElogV), where E is the total number of flights.
 
 Space Complexity: O(n), the size of the heap.
 *               
@@ -37,32 +37,30 @@ class Solution {
         int cost = 0;
         int stops = 0;
         bool operator<(const Node& rhs) const {
-            return cost < rhs.cost;
+            return rhs.cost < cost;
         }
     };
 public:
     int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K) {
-        vector<int> cost(n, INT_MAX);
         unordered_map<int, vector<pair<int, int>>> graph;
         for (auto flight : flights) {
             graph[flight[0]].push_back({flight[1], flight[2]});
         }
         priority_queue<Node> pq;
         pq.push({src, 0, 0});
-        cost[src] = 0;
         while (!pq.empty()) {
             auto curr = pq.top();
             pq.pop();
             int u = curr.id;
+            if (u == dst) return curr.cost;
             for (auto neigh : graph[u]) {
                 int v = neigh.first;
                 int w = neigh.second;
-                if (cost[v] > cost[u] + w && curr.stops < K + 1) {
-                    cost[v] = cost[u] + w;
-                    pq.push({v, cost[v], curr.stops + 1});
+                if (curr.stops < K + 1) {
+                    pq.push({v, curr.cost + w, curr.stops + 1});
                 }
             }
         }
-        return cost[dst] == INT_MAX ? -1 : cost[dst];
+        return -1;
     }
 };
