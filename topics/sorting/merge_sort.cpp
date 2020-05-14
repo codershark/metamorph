@@ -20,29 +20,35 @@
 
 class Solution {
 public:
-    void qsort(vector<int>& a, int l, int r) {
-        
-        if (l >= r) return;
-        int x = a[r];
-        int i = l;
-        int j = r - 1;
-        while (i <= j) {
-            while (a[i] < x) ++i;
-            while (i <= j && a[j] > x) --j;
-            if (i <= j) {
-                swap(a[i], a[j]);
-                ++i;
-                --j;
+    void merge(vector<int>& nums, int l, int m, int r) {
+        vector<int> result;
+        int i, j;
+        for (i = l, j = m; i < m && j < r; ){
+            if (nums[i] < nums[j]) {
+                result.push_back(nums[i++]);
+            } else {
+                result.push_back(nums[j++]);
             }
         }
-        swap(a[i], a[r]);
-        qsort(a, l, i -1);
-        qsort(a, i + 1, r);
+        while (i < m) {
+            result.push_back(nums[i++]);
+        }
+        while (j < r) {
+            result.push_back(nums[j++]);
+        }
+        for (i = l; i < r; i++) {
+            nums[i] = result[i - l];
+        }
+    }
+    void split(vector<int>& nums, int l, int r) {
+        if (r - l <= 1) return;
+        int mid = (l + r) / 2;
+        split(nums, l, mid);
+        split(nums, mid, r);
+        merge(nums, l, mid, r);
     }
     vector<int> sortArray(vector<int>& nums) {
-        if (nums.size() < 2) return nums;
-        vector<int> copy = nums;
-        qsort(copy, 0, nums.size() -1);
-        return copy;
+        split(nums, 0, nums.size());
+        return nums;
     }
 };
